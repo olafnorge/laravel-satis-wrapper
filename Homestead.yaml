@@ -1,0 +1,22 @@
+---
+ip: 192.168.10.11
+memory: 2048
+cpus: 1
+provider: virtualbox
+authorize: ~/.ssh/id_rsa.pub
+keys:
+  - ~/.ssh/id_rsa
+folders:
+  - map: .
+    to: /home/vagrant/code
+sites:
+  - map: satis.test
+    to: /home/vagrant/code/public
+    type: apache
+databases:
+  - homestead
+name: satis
+hostname: satis
+variables:
+  - key: COMPOSER_MEMORY_LIMIT
+    value: -1

@@ -1,0 +1,84 @@
+{
+  "name": "olafnorge/satis",
+  "description": "UI on top of satis.",
+  "keywords": [
+    "satis"
+  ],
+  "license": "MIT",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Volker Machon",
+      "email": "olafnorge@users.noreply.github.com"
+    }
+  ],
+  "require": {
+    "ext-json": "*",
+    "composer/satis": "dev-master#688aa4121f574f5e2dda8048a1b1d134c64ee774",
+    "doctrine/dbal": "^2.8",
+    "fideloper/proxy": "^4.0",
+    "jenssegers/date": "^3.4",
+    "laravel/framework": "5.8.*",
+    "laravel/helpers": "^1.0",
+    "laravelcollective/html": "^5.8",
+    "olafnorge/docker-helpers": "^1.0",
+    "olafnorge/laravel-migrate": "^1.0",
+    "olafnorge/laravel-oauth": "^1.0",
+    "olafnorge/laravel-rollbar": "^2.1"
+  },
+  "require-dev": {
+    "barryvdh/laravel-ide-helper": "^2.4",
+    "beyondcode/laravel-dump-server": "^1.2",
+    "filp/whoops": "^2.2",
+    "laravel/homestead": "^8.4",
+    "laravel/tinker": "^1.0",
+    "mockery/mockery": "^1.1",
+    "nunomaduro/collision": "^3.0",
+    "phpunit/phpunit": "^8.2",
+    "predis/predis": "^1.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    },
+    "files": [
+      "app/helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "classmap": [
+      "database/seeds",
+      "database/factories"
+    ],
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "dont-discover": [
+      ]
+    }
+  },
+  "scripts": {
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ],
+    "post-create-project-cmd": [
+      "@php artisan key:generate"
+    ],
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@php artisan package:discover",
+      "@php artisan ide-helper:generate 1>/dev/null 2>&1 || true",
+      "@php artisan ide-helper:meta 1>/dev/null 2>&1 || true"
+    ]
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "optimize-autoloader": true,
+    "discard-changes": true
+  },
+  "minimum-stability": "stable"
+}
