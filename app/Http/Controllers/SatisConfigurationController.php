@@ -228,7 +228,7 @@ class SatisConfigurationController extends Controller {
             count($repositories),
             $perPage,
             $page,
-            ['path' => route('satis.configuration.details', $uuid)]
+            ['path' => route('satis.configuration.details', ['uuid' => $uuid])]
         );
 
         return view('satis_configuration.details', [

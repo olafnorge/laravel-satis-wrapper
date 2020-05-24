@@ -47,16 +47,8 @@ class SatisConfigurationRepository {
                 if (!create_build_folder($record->uuid)) {
                     throw new \RuntimeException('Could not create build directory');
                 }
-
-                if (!link_build_folder($record->uuid, basename($record->homepage))) {
-                    throw new \RuntimeException('Could not link build directory');
-                }
-
-                if ($record->password_secured && !create_build_folder_htaccess($record->uuid, $record->name, 'composer', $record->password)) {
-                    throw new \RuntimeException('Could not create .htaccess');
-                }
             } catch (\RuntimeException $exception) {
-                unlink_build_folder($record->uuid, basename($record->homepage));
+                unlink_build_folder($record->uuid);
                 throw $exception;
             }
 
@@ -107,16 +99,8 @@ class SatisConfigurationRepository {
                 if (!create_build_folder($record->uuid)) {
                     throw new \RuntimeException('Could not create build directory');
                 }
-
-                if (!link_build_folder($record->uuid, basename($record->homepage))) {
-                    throw new \RuntimeException('Could not link build directory');
-                }
-
-                if ($record->password_secured && !create_build_folder_htaccess($record->uuid, $record->name, 'composer', $record->password)) {
-                    throw new \RuntimeException('Could not create .htaccess');
-                }
             } catch (\RuntimeException $exception) {
-                unlink_build_folder($record->uuid, basename($record->homepage));
+                unlink_build_folder($record->uuid);
                 throw $exception;
             }
 
@@ -185,7 +169,7 @@ class SatisConfigurationRepository {
             return CronExpression::isValidExpression($value);
         });
         Validator::extend('json', function($attribute, $value, $parameters) {
-            return (new static())->validateJSON($value);
+            return $this->validateJSON($value);
         });
 
         $uuid = array_get($configuration, 'uuid', '');

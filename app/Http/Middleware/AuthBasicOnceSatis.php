@@ -14,7 +14,7 @@ class AuthBasicOnceSatis {
      * Handle an incoming request.
      *
      * @param Request $request
-     * @param  \Closure $next
+     * @param \Closure $next
      * @return mixed
      * @throws AuthenticationException
      */
@@ -29,10 +29,20 @@ class AuthBasicOnceSatis {
 
     /**
      * @param Request $request
-     * @return SatisConfiguration
+     * @return SatisConfiguration|void
      */
     protected function getSatisConfiguration(Request $request) {
-        return SatisConfiguration::where('uuid', $request->route('repository'))->first() ?: abort(404);
+        if ($param = $request->route('repository')) {
+            return SatisConfiguration::where('uuid', $param)->first() ?: abort(404);
+        } elseif ($param = $request->route('any')) {
+            $pathSegments = explode('/', $param, 2);
+            $uuidOrHomepage = array_first($pathSegments);
+            $repo = SatisConfiguration::where('uuid', $uuidOrHomepage)->first()
+                ?? SatisConfiguration::where('homepage', generate_satis_homepage($uuidOrHomepage))->first();
+            return $repo ?: abort(404);
+        }
+
+        return abort(404);
     }
 
 

@@ -22,92 +22,19 @@ if (!function_exists('create_build_folder')) {
     }
 }
 
-if (!function_exists('link_build_folder')) {
-    /**
-     * Links a build folder of a satis repository to the public folder
-     *
-     * @param string $target Relative path to satis disk of build folder
-     * @param string $link Name of the link pointing to $target
-     * @return bool
-     */
-    function link_build_folder(string $target, string $link): bool {
-        $link = storage_path(sprintf('app/public/%s', str_slug($link)));
-        $target = find_build_target_to_link($target, $link);
-
-        if (is_link($link) && readlink($link) === $target) {
-            return true;
-        } elseif (is_link($link)) {
-            $message = [
-                sprintf('The target of the link is not pointing to its build directory (%s).', $target),
-                sprintf('It currently points to %s (%s).', readlink($link), basename(realpath($link))),
-                'That could mean that the name of the repository is already taken.',
-            ];
-
-            throw new \RuntimeException(implode(' ', $message));
-        } elseif (File::exists($link)) {
-            $message = [
-                sprintf('The target of the link is a regular %s.', File::isDirectory($link) ? 'directory' : 'file'),
-                'That could mean that the name of the repository is already taken.',
-            ];
-
-            throw new \RuntimeException(implode(' ', $message));
-        }
-
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return File::link($target, $link);
-    }
-}
-
 if (!function_exists('unlink_build_folder')) {
     /**
      * Unlink satis repository build folder
      *
      * @param string $path Relative path to satis disk of build folder
-     * @param string $link Name of the link pointing to $path
      * @return bool
      */
-    function unlink_build_folder(string $path, string $link): bool {
-        $link = storage_path(sprintf('app/public/%s', str_slug($link)));
-
-        if (is_link($link) && readlink($link) === find_build_target_to_link($path, $link)) {
-            unlink($link);
-        }
-
+    function unlink_build_folder(string $path): bool {
         if (Storage::disk('satis_builds')->exists($path) && !Storage::disk('satis_builds')->allDirectories($path)) {
             return Storage::disk('satis_builds')->deleteDirectory($path);
         }
 
         return true;
-    }
-}
-
-if (!function_exists('create_build_folder_htaccess')) {
-    /**
-     * Create satis repository build folder
-     *
-     * @param string $path Relative path to satis disk of build folder
-     * @param string $reponame
-     * @param string $username
-     * @param string $password
-     * @return bool
-     */
-    function create_build_folder_htaccess(string $path, string $reponame, string $username, string $password): bool {
-        if (!$password) {
-            return true;
-        }
-
-        $path = Storage::disk('satis_builds')->path($path);
-        $crypt = Hash::make($password);
-        $htaccess = implode(PHP_EOL, [
-            sprintf('AuthUserFile %s', sprintf('%s/.htpasswd', $path)),
-            'AuthType Basic',
-            sprintf('AuthName "%s"', $reponame),
-            'Require valid-user',
-        ]);
-
-        return File::put(sprintf('%s/.htaccess', $path), $htaccess . PHP_EOL)
-            && File::put(sprintf('%s/.htpasswd', $path), sprintf('%s:%s', $username, $crypt) . PHP_EOL);
     }
 }
 
@@ -221,32 +148,6 @@ if (!function_exists('satis_templates')) {
     }
 }
 
-if (!function_exists('find_build_target_to_link')) {
-    /**
-     * Tries to find a target relatively to a link
-     *
-     * @param string $target
-     * @param string $link
-     * @return string
-     */
-    function find_build_target_to_link(string $target, string $link) {
-        $absolute = Storage::disk('satis_builds')->path($target);
-
-        // try to find relative target
-        if (starts_with($absolute, storage_path()) && starts_with($link, storage_path())) {
-            $basePath = rtrim(Storage::disk('satis_builds')->path(''), '/');
-            $relativePath = rtrim(str_repeat('../', count(explode('/', str_replace_first(base_path(), '', storage_path())))), '/');
-
-            return sprintf('%s/%s',
-                rtrim(str_replace_first(storage_path(), $relativePath, $basePath), '/'),
-                $target
-            );
-        }
-
-        // absolute target
-        return $absolute;
-    }
-}
 
 if (!function_exists('get_uuid_validation_rules')) {
     /**
@@ -306,5 +207,15 @@ if (!function_exists('get_name_validation_rules')) {
             'unique:satis_configurations' . ($uuid ? ',name,' . $uuid . ',uuid' : ''),
             'max:255',
         ];
+    }
+}
+
+if (!function_exists('repository_has_builds')) {
+    /**
+     * @param string $uuid
+     * @return bool
+     */
+    function repository_has_builds(string $uuid): bool {
+        return Storage::disk('satis_builds')->exists(sprintf('%s/index.html', $uuid));
     }
 }

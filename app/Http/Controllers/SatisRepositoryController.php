@@ -6,6 +6,7 @@ use App\Repositories\SatisRepositoryRepository;
 use Composer\Json\JsonValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Storage;
 
 class SatisRepositoryController extends Controller {
 
@@ -161,5 +162,35 @@ class SatisRepositoryController extends Controller {
         }
 
         return redirect()->route('satis.configuration.details', ['uuid' => $uuid])->with('error', 'Unknown error.');
+    }
+
+
+    /**
+     * @param $any
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function show($any) {
+        $pathSegments = explode('/', $any, 2);
+        $uuidOrHomepage = array_first($pathSegments);
+        $repo = SatisConfiguration::where('uuid', $uuidOrHomepage)->first()
+            ?? SatisConfiguration::where('homepage', generate_satis_homepage($uuidOrHomepage))->first();
+
+        abort_unless($repo, 404);
+        $path = count($pathSegments) == 1
+            ? sprintf('%s/index.html', $repo->uuid)
+            : sprintf('%s/%s', $repo->uuid, array_last($pathSegments));
+        abort_unless(Storage::disk('satis_builds')->exists($path), 404);
+        $mimeType = ends_with($path, '.json')
+            ? 'application/json'
+            : Storage::disk('satis_builds')->getMimetype($path);
+
+        return response()->stream(function () use ($path) {
+            $stream = Storage::disk('satis_builds')->readStream($path);
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Length' => Storage::disk('satis_builds')->getSize($path),
+        ]);
     }
 }

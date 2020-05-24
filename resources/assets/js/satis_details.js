@@ -1,5 +1,7 @@
 'use strict';
 
+window.ClipboardJS = require('clipboard');
+
 let ajv = new Ajv({
     meta: false,
     extendRefs: true,
@@ -33,6 +35,18 @@ new JSONEditor(
     },
     jsoneditor.config
 );
+
+let clipboard = new ClipboardJS('.btn-clipboard');
+clipboard.on('success', function (e) {
+    e.clearSelection();
+    let title = 'Copy to clipboard';
+    $(e.trigger).tooltip('hide')
+        .attr('data-original-title', 'Copied!')
+        .tooltip('show');
+    setTimeout(function() {
+        $(e.trigger).tooltip('hide').attr('data-original-title', title);
+    }, 1500);
+});
 
 if (jsoneditor.crontab) {
     $('#crontab_human_readable').text(prettyCron.toString(jsoneditor.crontab));

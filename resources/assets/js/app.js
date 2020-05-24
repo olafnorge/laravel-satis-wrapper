@@ -27,25 +27,29 @@ $.ajaxSetup({
     }
 });
 
-$(document).ready(function () {
-    $('[data-toggle="popover"]').popover();
-    $('[data-toggle="tooltip"]').tooltip();
-
-    // do logout via POST
-    $('#logout-button').on('click', function (event) {
-        event.preventDefault();
-        $('#logout-form').submit();
-    });
-
-    // confirm dialog for destructive actions
-    $('*[data-confirm]').click(function (event) {
-        if (!confirm($(this).data('confirm'))) {
-            event.preventDefault();
-        }
-    });
-
-    // fade out flash messages
-    window.setTimeout(function () {
-        $(".alert").not('.alert-danger').alert('close')
-    }, 5000);
+// page wide functions
+$('[data-toggle="popover"]').popover();
+$('.popover-dismiss').popover({
+    trigger: 'focus'
 });
+
+// tooltips
+$('[data-toggle="tooltip"]').tooltip();
+
+// transform links to post
+$('.do-post').on('click', function (event) {
+    event.preventDefault();
+
+    if ($(this).data('confirm')) {
+        if ($(this).data('formid') && confirm($(this).data('confirm'))) {
+            $('#' + $(this).data('formid')).submit();
+        }
+    } else if ($(this).data('formid')) {
+        $('#' + $(this).data('formid')).submit();
+    }
+});
+
+// fade out flash messages
+window.setTimeout(function () {
+    $(".alert").not('.alert-danger').alert('close')
+}, 5000);

@@ -1,10 +1,10 @@
 'use strict';
 
-let mix = require('laravel-mix');
-let glob = require('glob');
-let fs = require('fs');
-let path = require('path');
-let ImageminPlugin = require('imagemin-webpack-plugin').default;
+const mix = require('laravel-mix');
+const path = require('path');
+const ImageminPlugin = require('imagemin-webpack-plugin').default;
+const glob = require('glob');
+const fs = require('fs');
 
 /*
  |--------------------------------------------------------------------------
@@ -36,14 +36,6 @@ mix
     .js('resources/assets/js/satis_edit.js', 'public/js')
     .sass('resources/assets/sass/app.scss', 'public/css')
     .sass('resources/assets/sass/jsoneditor.scss', 'public/css');
-
-// extract vendor libs that are unlikely to change often
-mix.extract([
-    'axios',
-    'bootstrap',
-    'jquery',
-    'lodash'
-]);
 
 // optimize images
 mix.webpackConfig({
@@ -82,18 +74,6 @@ glob('resources/assets/img/**', (err, files) => {
     //{"src": 'node_modules/jsoneditor/dist/jsoneditor.min.css', "dst": null}
 ].forEach(css => {
     mix.copy(css.src, 'public/css/' + (css.dst ? css.dst : path.basename(css.src)));
-});
-
-// copy font-awesome 5 fonts
-glob('node_modules/@fortawesome/fontawesome-free/webfonts/**', (err, files) => {
-    files.forEach(file => {
-        fs.stat(file, (err, stats) => {
-            if (stats.isFile()) {
-                mix.copy(file, file.replace(/node_modules\/@fortawesome\/fontawesome-free\/webfonts/, 'public/webfonts'));
-            }
-        });
-
-    });
 });
 
 mix.sourceMaps(!mix.inProduction(), 'cheap-source-map');

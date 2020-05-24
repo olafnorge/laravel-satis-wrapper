@@ -14,10 +14,18 @@
 // main entry point
 Route::get('/', ['middleware' => 'guest', 'uses' => 'Auth\LoginController@index'])->name('index');
 
+// catch all route in order to pass through composer requests to our repos
+Route::group(['middleware' => 'auth.basic.once.satis'], function () {
+    Route::get('/storage/{any}', 'SatisRepositoryController@show')
+        ->where('any', '.*')
+        ->name('satis.repository.show');
+});
+
 // authentication routes
 Route::group(['prefix' => 'auth'], function () {
     Route::get('{provider}', ['middleware' => 'guest', 'uses' => 'Auth\LoginController@redirect'])
-        ->where('provider', '(github|google|linkedin)')
+//        ->where('provider', '(github|google|linkedin)')
+        ->where('provider', '(google)')
         ->name('auth.redirect');
     Route::get('callback', ['middleware' => 'guest', 'uses' => 'Auth\LoginController@callback'])->name('auth.callback');
     Route::post('logout', ['middleware' => 'auth', 'uses' => 'Auth\LoginController@logout'])->name('auth.logout');

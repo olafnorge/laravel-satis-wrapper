@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Console\Commands\Satis\LinkCommand;
 use App\Jobs\SatisBuildJob;
 use App\Models\SatisConfiguration;
 use DB;
@@ -44,12 +43,6 @@ class Kernel extends ConsoleKernel {
      * @return void
      */
     protected function schedule(Schedule $schedule) {
-        // make sure to link all repositories
-        // this needs to run on each instance
-        $schedule
-            ->command(LinkCommand::class)
-            ->everyMinute();
-
         try {
             // only allow cron execution by one host
             if (!$this->lock('scheduler')) return;
@@ -59,21 +52,7 @@ class Kernel extends ConsoleKernel {
                 foreach (SatisConfiguration::where('crontab', '<>', '')->get() as $record) {
                     $schedule
                         ->job(new SatisBuildJob($record->uuid))
-                        ->cron($record->crontab)
-                        ->after(function () use ($record) {
-                            // make sure htaccess files get created
-                            // this should run only on one instance because of the shared storage
-                            $success = $this->getArtisan()->call('satis:htaccess', [
-                                'uuid' => $record->uuid,
-                                '--wait-for-lock' => true,
-                                '--no-ansi' => true,
-                                '--no-interaction' => true,
-                            ]) === 0;
-
-                            if (!$success) {
-                                echo $this->getArtisan()->output();
-                            }
-                        });
+                        ->cron($record->crontab);
                 }
             }
         } catch (\Throwable $exception) {

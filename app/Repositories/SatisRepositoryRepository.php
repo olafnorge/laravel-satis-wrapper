@@ -116,7 +116,7 @@ class SatisRepositoryRepository {
      * @param array $repositories
      * @throws JsonValidationException
      */
-    public function validates(string $url, array $repositories) {
+    public function validates(?string $url, array $repositories) {
         foreach ($repositories as $repository) {
             if (array_get($repository, 'url') === $url) {
                 throw new \RuntimeException('Repository already exists');

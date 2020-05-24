@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class Handler extends ExceptionHandler {
 
@@ -64,11 +65,22 @@ class Handler extends ExceptionHandler {
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Illuminate\Auth\AuthenticationException  $exception
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception) {
+        $unauthorizedHttpException = new UnauthorizedHttpException(
+            sprintf('Basic realm="%s"', config('app.name')),
+            'Unauthenticated.'
+        );
+
         if ($request->expectsJson()) {
-            return response()->json(['error' => 'Unauthenticated.'], 401);
+            return response()->json(
+                ['error' => 'Unauthenticated.'],
+                $unauthorizedHttpException->getStatusCode(),
+                $unauthorizedHttpException->getHeaders()
+            );
+        } elseif ($request->route()->getName() === 'satis.repository.show') {
+            return $this->renderHttpException($unauthorizedHttpException);
         }
 
         return redirect()->guest(route('index'));

@@ -117,10 +117,10 @@ return [
 
         'cluster' => env('REDIS_CLUSTER', false),
 
-        'client' => env('REDIS_CLIENT', 'predis'),
+        'client' => env('REDIS_CLIENT', 'phpredis'),
 
         'options' => [
-            'cluster' => env('REDIS_CLUSTER', 'predis'),
+            'cluster' => env('REDIS_CLUSTER', 'phpredis'),
             'prefix' => Str::slug(env('APP_NAME', 'satis'), '_').'_database_',
         ],
 

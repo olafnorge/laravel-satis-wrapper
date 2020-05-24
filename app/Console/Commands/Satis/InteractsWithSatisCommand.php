@@ -92,44 +92,8 @@ trait InteractsWithSatisCommand {
         // add a notification url to collect statistics
         $data['notify-batch'] = route('webhook.satis', ['repository' => $record->uuid]);
 
-        // merge in authentication tokens
-        $data = value(function () use ($data): array {
-            if (config('satis.github_oauth')) {
-                $data['config']['github-oauth'] = config('satis.github_oauth');
-            }
-
-            if (config('satis.gitlab_oauth')) {
-                $data['config']['gitlab-oauth'] = config('satis.gitlab_oauth');
-            }
-
-            if (config('satis.gitlab_token')) {
-                $data['config']['gitlab-token'] = config('satis.gitlab_token');
-            }
-
-            if (config('satis.http_basic')) {
-                $data['config']['http-basic'] = config('satis.http_basic');
-            }
-
-            if (config('satis.bitbucket_oauth')) {
-                $data['config']['bitbucket-oauth'] = config('satis.bitbucket_oauth');
-            }
-
-            return $data;
-        });
-
         // merge in auth domains
         $data = value(function () use ($data): array {
-            if (config('satis.github_oauth')) {
-                $data['config']['github-domains'][] = 'github.com';
-
-                foreach (array_keys(config('satis.github_oauth')) as $githubDomain) {
-                    if ($githubDomain === 'github.com') continue;
-                    $data['config']['github-domains'][] = $githubDomain;
-                }
-
-                $data['config']['github-domains'] = array_unique($data['config']['github-domains']);
-            }
-
             if (config('satis.github_domains')) {
                 $data['config']['github-domains'][] = 'github.com';
 
@@ -139,28 +103,6 @@ trait InteractsWithSatisCommand {
                 }
 
                 $data['config']['github-domains'] = array_unique($data['config']['github-domains']);
-            }
-
-            if (config('satis.gitlab_oauth')) {
-                $data['config']['gitlab-domains'][] = 'gitlab.com';
-
-                foreach (array_keys(config('satis.gitlab_oauth')) as $githubDomain) {
-                    if ($githubDomain === 'gitlab.com') continue;
-                    $data['config']['gitlab-domains'][] = $githubDomain;
-                }
-
-                $data['config']['gitlab-domains'] = array_unique($data['config']['gitlab-domains']);
-            }
-
-            if (config('satis.gitlab_token')) {
-                $data['config']['gitlab-domains'][] = 'gitlab.com';
-
-                foreach (array_keys(config('satis.gitlab_token')) as $githubDomain) {
-                    if ($githubDomain === 'gitlab.com') continue;
-                    $data['config']['gitlab-domains'][] = $githubDomain;
-                }
-
-                $data['config']['gitlab-domains'] = array_unique($data['config']['gitlab-domains']);
             }
 
             if (config('satis.gitlab_domains')) {
