@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class Handler extends ExceptionHandler {
@@ -24,6 +25,7 @@ class Handler extends ExceptionHandler {
         \Illuminate\Database\Eloquent\ModelNotFoundException::class,
         \Illuminate\Session\TokenMismatchException::class,
         \Illuminate\Validation\ValidationException::class,
+        \Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class,
     ];
 
 
@@ -55,6 +57,10 @@ class Handler extends ExceptionHandler {
         switch (true) {
             case $exception instanceof TokenMismatchException:
                 return redirect()->back()->withInput()->with('error', 'Your session expired. Please try again.');
+            case $exception instanceof NotFoundHttpException:
+                return $request->wantsJson()
+                    ? response()->json(['code' => 404], 404)
+                    : $this->renderHttpException($exception);
         }
 
         return parent::render($request, $exception);

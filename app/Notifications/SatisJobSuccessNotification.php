@@ -57,7 +57,7 @@ class SatisJobSuccessNotification extends Notification implements ShouldQueue {
         $record = SatisConfiguration::where('uuid', $this->repositoryUuid)->first();
 
         return (new MailMessage)
-            ->subject('The ' . ucfirst($this->jobName) . ' job for »' . $record->name . '« is done')
+            ->subject('The ' . ucfirst($this->jobName) . ' job for ' . $record->name . ' is done')
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line('The »' . $this->jobName . '« job you triggered has finished and the »' . $record->name . '« repository is now ready to use.')
             ->action('View Homepage', $record->homepage);

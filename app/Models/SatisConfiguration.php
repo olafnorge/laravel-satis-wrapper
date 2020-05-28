@@ -30,6 +30,13 @@ class SatisConfiguration extends Model {
         'crontab',
     ];
 
+    protected $hidden = [
+        'configuration',
+        'password',
+        'created_at',
+        'updated_at',
+    ];
+
 
     /**
      * @return string

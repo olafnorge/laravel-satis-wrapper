@@ -5,4 +5,5 @@ return [
     'gitlab_domains' => explode(',', env('SATIS_GITLAB_DOMAINS', '')),
     'output_dir' => storage_path('satis'),
     'htpasswd_password' => docker_secret(env('SATIS_HTPASSWD_PASSWORD', str_random(32))),
+    'working_dir' => env('HOME', '/home/www-data'),
 ];

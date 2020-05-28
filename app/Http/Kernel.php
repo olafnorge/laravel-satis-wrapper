@@ -37,7 +37,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:60,1',
+            'throttle:10|1000,1',
             'bindings',
         ],
     ];
@@ -53,6 +53,8 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.basic.once.satis' => \App\Http\Middleware\AuthBasicOnceSatis::class,
+        'auth.api.gitlab' => \App\Http\Middleware\AuthApiGitlab::class,
+        'auth.api.token' => \App\Http\Middleware\AuthApiToken::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,

@@ -64,7 +64,7 @@ class SatisJobFailedNotification extends Notification implements ShouldQueue {
         $record = SatisConfiguration::where('uuid', $this->repositoryUuid)->first();
 
         return (new MailMessage)
-            ->subject('The ' . ucfirst($this->jobName) . ' job for »' . $record->name . '« failed')
+            ->subject('The ' . ucfirst($this->jobName) . ' job for ' . $record->name . ' failed')
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line('The »' . $this->jobName . '« job you triggered has failed. Please see attached logs for more information.')
             ->attachData($this->commandOutput, 'trace.txt');

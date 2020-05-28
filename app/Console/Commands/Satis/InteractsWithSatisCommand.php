@@ -84,10 +84,13 @@ trait InteractsWithSatisCommand {
         $data['config']['discard-changes'] = true; // always use remote as source of truth
         $data['config']['github-expose-hostname'] = false; // ensure OAuth tokens to access the github API will have a date instead of the machine hostname
         $data['config']['github-protocols'] = ['https', 'ssh', 'git']; // only use secure git protocols
-        $data['config']['htaccess-protect'] = false; // no need to protect composer's home, cache, and data directories
         $data['config']['notify-on-install'] = false; // do not notify package maintainer about download
         $data['config']['store-auths'] = false; // do not try to store auths because app runs in non-interactive mode
         $data['config']['use-include-path'] = false; // do not use php's include path
+        $data['config']['preferred-install'] = 'dist'; // prevent satis from using git
+        $data['config']['archive-format'] = 'zip'; // store downloads as zip
+        $data['config']['lock'] = false; // ensure we don't create a composer.lock file
+        $data['config']['htaccess-protect'] = false; // don't create .htaccess files because we pass through all requests
 
         // add a notification url to collect statistics
         $data['notify-batch'] = route('webhook.satis', ['repository' => $record->uuid]);
@@ -294,10 +297,24 @@ trait InteractsWithSatisCommand {
             $this->getCommandOptions(),
             $this->getCommandArguments()
         ));
+        $process->setWorkingDirectory(config('satis.working_dir'));
+        $process->setEnv(array_merge(
+            getenv(),
+            [
+                'COMPOSER_HTACCESS_PROTECT' => 0,
+                'COMPOSER_MEMORY_LIMIT' => -1,
+                'COMPOSER_NO_INTERACTION' => 1,
+                'COMPOSER_PROCESS_TIMEOUT' => 18000, // 5 hours in seconds
+            ]
+        ));
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
         $process->disableOutput();
-        $this->info(sprintf('Running command: %s', $process->getCommandLine()));
+        $this->info(sprintf(
+            'Running command: %s under %s',
+            $process->getCommandLine(),
+            $process->getWorkingDirectory()
+        ));
         $process->run(function ($type, $buffer) {
             if ($buffer === PHP_EOL) {
                 $this->flushBuffer($type);

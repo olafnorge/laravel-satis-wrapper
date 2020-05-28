@@ -53,7 +53,7 @@ class SatisConfigurationRepository {
             }
 
             if ($record->repositories) {
-                dispatch(new SatisBuildJob($record->uuid, $user->id));
+                dispatch(new SatisBuildJob($record->uuid, $user ? $user->id : ''));
             }
 
             return $record;
@@ -105,7 +105,7 @@ class SatisConfigurationRepository {
             }
 
             if ($record->repositories && $dispatchJob) {
-                dispatch(new SatisBuildJob($record->uuid, $user->id));
+                dispatch(new SatisBuildJob($record->uuid, $user ? $user->id : ''));
             }
 
             return $record;
@@ -124,7 +124,7 @@ class SatisConfigurationRepository {
         $this->validate($record->toArray());
 
         if ($record->repositories) {
-            dispatch(new SatisBuildJob($record->uuid, $user->id));
+            dispatch(new SatisBuildJob($record->uuid, $user ? $user->id : ''));
         }
 
         return true;
@@ -140,7 +140,7 @@ class SatisConfigurationRepository {
      */
     public function purge(SatisConfiguration $record, User $user = null) {
         $this->validate($record->toArray());
-        dispatch(new SatisPurgeJob($record->uuid, $user->id));
+        dispatch(new SatisPurgeJob($record->uuid, $user ? $user->id : ''));
 
         return true;
     }
