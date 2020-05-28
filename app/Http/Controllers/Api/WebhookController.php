@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Jobs\SatisBuildJob;
 use App\Models\SatisConfiguration;
 use App\Models\SatisDownloadStatistic;
