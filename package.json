@@ -25,7 +25,7 @@
     "jsoneditor": "^8.6.8",
     "laravel-mix": "^5.0.4",
     "later": "^1.2.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.21",
     "moment": "^2.22.2",
     "popper.js": "^1.14.4",
     "prettycron": "^0.10.0",
